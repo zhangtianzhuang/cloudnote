@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN" 
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<package name="def" namespace="/" extends="struts-default">
+		<!-- 验证码 -->
+		<action name="createImageAction" class="com.ztz.action.CreateImageAction">
+			<result name="success" type="stream">
+				<param name="contentType">image/jpeg</param>
+				<param name="inputName">inputStream</param>
+			</result>
+		</action>
+		
+		<!-- 检查验证码 -->
+		<action name="checkCodeAction" class="com.ztz.action.CheckCodeAction"></action>
+		<!-- 邮件验证 -->
+		<action name="checkMailAction" class="com.ztz.action.CheckMailAction"></action>
+		<action name="mailAction" class="com.ztz.action.CheckMailAction" method="checkMail"></action>
+		<action name="sendMailAction" class="com.ztz.action.CheckMailAction" method="sendMail">
+			<result name="success" type="redirect">/index.jsp</result>
+		</action>
+	</package>
+
+	<!-- 命名空间和action 都小写 -->
+	<package name="user" namespace="/user" extends="struts-default">
+		<!-- 配置拦截器 -->
+		<interceptors>
+			<!-- 登录拦截器 -->
+			<interceptor name="loginInterceptor" class="com.ztz.intercept.CheckLoginInterceptor"/>
+			<!-- 登录拦截器与系统拦截器组成一个拦截器栈 -->
+			<interceptor-stack name="loginStack">
+				<interceptor-ref name="loginInterceptor"/>	
+				<interceptor-ref name="defaultStack"/>
+			</interceptor-stack>
+		</interceptors>
+		<!-- 默认拦截器是登录拦截器栈 -->
+		<!-- <default-interceptor-ref name="loginStack"/> -->
+		
+		<!-- 注册 -->
+		<action name="register" class="userAction" method="registerUser">
+			<result name="success" type="dispatcher">/register-success.jsp</result>
+			<result name="failure" type="redirect">/index.jsp</result>
+			<result name="hasRegister" type="redirect">/index.jsp</result>
+		</action>
+		
+		<action name="findUser" class="userAction" method="findUser">
+			<result name="success" type="redirect">/show-note-user-info.jsp</result>
+		</action>
+		
+		<action name="test" class="testAction" method="test">
+			<result name="success">/index.jsp</result>
+		</action>
+		
+		<action name="uploadTest" class="fileUploadAction" method="uploadFile">
+			<result name="success">/index.jsp</result>
+		</action>
+		<!-- 登录 -->
+		<action name="login" class="userAction" method="loginUser">
+			<!-- 登录 不需要“登录拦截器”，设置为系统默认拦截器 -->
+			<interceptor-ref name="defaultStack"/>
+			<result name="success" type="redirect">/index.jsp</result>
+			<result name="failure" type="dispatcher">/user_login.jsp</result>
+			<result name="nouser" type="redirect">/user_login.jsp</result>
+		</action>
+		
+		<action name="motifyUser" class="userAction" method="motifyUser">
+			<result name="success" type="redirect">/user-info.jsp?msg=success</result>
+		</action>
+		
+		<action name="logout" class="userAction" method="logoutUser">
+			<result name="success" type="redirect">/index.jsp</result>
+		</action>
+	</package>
+	
+	<package name="note" namespace="/note" extends="struts-default">
+	
+		<action name="*Action" class="noteAction" method="{1}">
+			<!-- 发布成功 -->
+			<result name="publish-success" type="redirect">/find-note.jsp</result>
+			<result name="select-one-note" type="redirect">/note-detail.jsp</result>
+			<result name="motify-success" type="redirect">/note-detail.jsp</result>
+		</action>
+		
+		<action name="uploadImage" class="fileUploadAction" method="uploadFile">
+			<result name="success">/find-note.jsp</result>
+		</action>
+		
+	</package>
+	
+	<package name="level" namespace="/level" extends="struts-default">
+		<action name="*Action" class="levelWordAction" method="{1}">
+			<result name="level-success" type="redirect">/note-detail.jsp</result>
+		</action>
+	</package>
+
+
+</struts>
